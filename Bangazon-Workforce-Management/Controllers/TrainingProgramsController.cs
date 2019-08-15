@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bangazon_Workforce_Management.Controllers
 {
-    public class EmployeeTrainingProgramsController : Controller
+    public class TrainingProgramsController : Controller
     {
         // GET: EmployeeTrainingPrograms
         public ActionResult Index()
