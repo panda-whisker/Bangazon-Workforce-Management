@@ -9,25 +9,25 @@ namespace Bangazon_Workforce_Management.Controllers
 {
     public class TrainingProgramsController : Controller
     {
-        // GET: EmployeeTrainingPrograms
+        // GET: TrainingPrograms
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: EmployeeTrainingPrograms/Details/5
+        // GET: TrainingPrograms/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: EmployeeTrainingPrograms/Create
+        // GET: TrainingPrograms/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: EmployeeTrainingPrograms/Create
+        // POST: TrainingPrograms/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -44,13 +44,13 @@ namespace Bangazon_Workforce_Management.Controllers
             }
         }
 
-        // GET: EmployeeTrainingPrograms/Edit/5
+        // GET: TrainingPrograms/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: EmployeeTrainingPrograms/Edit/5
+        // POST: TrainingPrograms/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -67,13 +67,13 @@ namespace Bangazon_Workforce_Management.Controllers
             }
         }
 
-        // GET: EmployeeTrainingPrograms/Delete/5
+        // GET: TrainingPrograms/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: EmployeeTrainingPrograms/Delete/5
+        // POST: TrainingPrograms/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
