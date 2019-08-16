@@ -1,18 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Bangazon_Workforce_Management.Models;
 
 namespace Bangazon_Workforce_Management.Controllers
 {
     public class DepartmentsController : Controller
     {
+        private readonly IConfiguration _config;
+
+        public DepartmentsController(IConfiguration config)
+        {
+            _config = config;
+        }
+        public SqlConnection Connection
+        {
+            get
+            {
+                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            }
+        }
         // GET: Departments
         public ActionResult Index()
         {
-            return View();
+            var departments = new List<Department>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT d.Id as DepartmentId, d.Name, d.Budget,
+                                COUNT(e.Id) as NumberOfEmployees
+                                FROM Department d
+                                LEFT JOIN Employee e ON d.ID = e.DepartmentId
+                        GROUP BY d.Id, d.Name, d.Budget
+                    ";
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        departments.Add(new Department()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
+                            NumberOfEmployees = reader.GetInt32(reader.GetOrdinal("NumberOfEmployees"))
+                        });
+                    }
+                    reader.Close();
+                }
+            }
+            return View(departments);
         }
 
         // GET: Departments/Details/5
@@ -87,6 +130,32 @@ namespace Bangazon_Workforce_Management.Controllers
             catch
             {
                 return View();
+            }
+        }
+        private List<Employee> GetAllEmployees()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, FROM Employee";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Employee> employees = new List<Employee>();
+                    while (reader.Read())
+                    {
+                        employees.Add(new Employee
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                           
+                        });
+                    }
+
+                    reader.Close();
+
+                    return employees;
+                }
             }
         }
     }
