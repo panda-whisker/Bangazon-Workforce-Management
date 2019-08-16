@@ -28,42 +28,34 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Departments
         public ActionResult Index()
         {
-            
-            
+            var departments = new List<Department>();
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                          SELECT d.Id, COUNT(e.DepartmentId) AS 'Empolee Count',  
-                                d.Name,
-                                d.Budget,
-                       e.DepartmentId                                       
-                        FROM Department d
-                        JOIN Employee e
-                        ON e.DepartmentId = d.Id
-                        GROUP BY d.Id,d.Name,d.Budget,e.DepartmentId;
+                        SELECT d.Id as DepartmentId, d.Name, d.Budget,
+                                COUNT(e.Id) as NumberOfEmployees
+                                FROM Department d
+                                LEFT JOIN Employee e ON d.ID = e.DepartmentId
+                        GROUP BY d.Id, d.Name, d.Budget
                     ";
-                    
                     SqlDataReader reader = cmd.ExecuteReader();
-
                     while (reader.Read())
                     {
                         departments.Add(new Department()
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget")),
-                           
+                            NumberOfEmployees = reader.GetInt32(reader.GetOrdinal("NumberOfEmployees"))
                         });
-
-               
-                                                  
                     }
+                    reader.Close();
                 }
             }
-                        return View(departments);
+            return View(departments);
         }
 
         // GET: Departments/Details/5

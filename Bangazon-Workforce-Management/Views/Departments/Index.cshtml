@@ -21,6 +21,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Budget)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfEmployees)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -35,6 +38,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Budget)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfEmployees)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
