@@ -69,23 +69,26 @@ namespace Bangazon_Workforce_Management.Controllers
                 conn.Open();
                 using(SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor,
-                                        ce.ComputerId, FROM Employee e
-                                        JOIN Department d ON d.Id = e.DepartmentId
-                                        JOIN ComputerEmployee ce ON ce.ComputerId = e.Id";
+                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor, et.Id AS                               TrainingProgramId, ce.ComputerId FROM Employee e
+                                        LEFT JOIN Department d ON d.Id = e.DepartmentId
+                                        LEFT JOIN ComputerEmployee ce ON ce.ComputerId = e.Id
+                                        LEFT JOIN EmployeeTraining et ON et.TrainingProgramId = e.Id
+                                        WHERE e.Id = @id";
 
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        employee = new Employee()
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("id")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirtName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
-                        };
+                            employee = new Employee()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
+                                ComputerId = reader.GetInt32(reader.GetOrdinal("ComputerId")),
+                                TrainingProgramId = reader.GetInt32(reader.GetOrdinal("TrainingProgramId"))
+                            };
                     }
                 }
             }

@@ -18,6 +18,10 @@ namespace Bangazon_Workforce_Management.Models
 
         public int DepartmentId { get; set; }
 
+        public int ComputerId { get; set; }
+
+        public int TrainingProgramId { get; set; }
+
         public bool isSupervisor { get; set; }
     }
 }
