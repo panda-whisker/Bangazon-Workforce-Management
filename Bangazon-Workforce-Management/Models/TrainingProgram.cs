@@ -26,5 +26,7 @@ namespace Bangazon_Workforce_Management.Models
         [Required]
         [Display(Name = "Maximum Attendence")]
         public int MaxAttendees { get; set; }
+
+        public List<Employee> attendingEmployees = new List<Employee>();
     }
 }

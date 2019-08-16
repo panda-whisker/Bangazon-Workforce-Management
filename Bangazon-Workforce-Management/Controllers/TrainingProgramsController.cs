@@ -59,13 +59,54 @@ namespace Bangazon_Workforce_Management.Controllers
                 }
             }
 
-                return View(trainingPrograms);
+            return View(trainingPrograms);
         }
 
         // GET: TrainingPrograms/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            TrainingProgram trainingProgram = null;
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT tp.Id, tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees, e.FirstName, e.LastName
+                        FROM TrainingProgram tp
+                        LEFT JOIN EmployeeTraining et ON et.TrainingProgramId = tp.Id
+                        LEFT JOIN Employee e ON e.Id = et.EmployeeId
+                        WHERE tp.Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (trainingProgram == null)
+                        {
+                            trainingProgram = new TrainingProgram()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                                MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"))
+                            };
+                        }
+                        trainingProgram.attendingEmployees.Add(
+                            new Employee
+                            {
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            }
+                        );
+                    }
+                    reader.Close();
+                }
+            }
+
+            return View(trainingProgram);
         }
 
         // GET: TrainingPrograms/Create
