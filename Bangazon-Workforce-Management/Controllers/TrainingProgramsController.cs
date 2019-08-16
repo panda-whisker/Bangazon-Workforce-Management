@@ -77,11 +77,28 @@ namespace Bangazon_Workforce_Management.Controllers
         // POST: TrainingPrograms/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(TrainingProgram trainingProgram)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                            INSERT INTO TrainingProgram
+                            ( Name, StartDate, EndDate, MaxAttendees )
+                            VALUES
+                            ( @name, @startDate, @endDate, @maxAttendees )";
+                        cmd.Parameters.AddWithValue("@name", trainingProgram.Name);
+                        cmd.Parameters.AddWithValue("@startDate", trainingProgram.StartDate);
+                        cmd.Parameters.AddWithValue("@endDate", trainingProgram.EndDate);
+                        cmd.Parameters.AddWithValue("@maxAttendees", trainingProgram.MaxAttendees);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
 
                 return RedirectToAction(nameof(Index));
             }
