@@ -41,11 +41,18 @@
             @Html.DisplayFor(model => model.MaxAttendees)
         </dd>
     </dl>
-    <h4>Attending Employees</h4>
-    @foreach (var item in Model.attendingEmployees)
+    @if (Model.attendingEmployees.Count > 0)
     {
+        <h4>Attending Employees:</h4>
+        @foreach (var item in Model.attendingEmployees)
+        {
 
-        <p>@Html.DisplayFor(modelItem => item.FirstName)</p>
+            <p>@Html.DisplayFor(modelItem => item.FirstName)</p>
+        }
+    }
+    else
+    {
+        <p>There are currently no employees attending this program</p>
     }
 </div>
 <div>
