@@ -31,7 +31,8 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model)
+        {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Id)
@@ -49,11 +50,29 @@
                 @Html.DisplayFor(modelItem => item.MaxAttendees)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                @if (ViewBag.past == false)
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                    <span>|</span>
+                }
+                @Html.ActionLink("Details", "Details", new { id = item.Id })
+                @if (ViewBag.past == false)
+                {
+                    <span>|</span>
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                }
             </td>
-        </tr>
-}
+    
+            </tr>
+        }
     </tbody>
 </table>
+@if (ViewBag.past == false)
+{
+    @Html.ActionLink("View Past Programs", "Index", new { past = true })
+}
+else
+{
+    @Html.ActionLink("View Upcoming Programs", "Index", new { past = false })
+}
+
