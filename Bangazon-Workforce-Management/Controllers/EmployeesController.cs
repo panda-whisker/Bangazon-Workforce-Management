@@ -99,6 +99,7 @@ namespace Bangazon_Workforce_Management.Controllers
                                 computer.Make = reader.GetString(reader.GetOrdinal("Make"));
                                 computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
                                 employee.Computer = computer;
+
                             }
                             else
                             {
@@ -170,7 +171,7 @@ namespace Bangazon_Workforce_Management.Controllers
                         cmd.Parameters.AddWithValue("@firstName", employee.FirstName);
                         cmd.Parameters.AddWithValue("@lastName", employee.LastName);
                         cmd.Parameters.AddWithValue("@IsSuperVisor", employee.isSupervisor);
-                        //cmd.Parameters.AddWithValue("@departmentId", employee.D);
+                        cmd.Parameters.AddWithValue("@departmentId", employee.departmentId);
 
                         cmd.ExecuteNonQuery();
                     }
