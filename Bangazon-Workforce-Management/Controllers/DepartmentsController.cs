@@ -62,7 +62,43 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Departments/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            Department department = null;
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT d.Id AS DepartmentId, e.FirstName, e.LastName, d.Budget, d.Name
+                    FROM Employee e
+                    LEFT JOIN Department d ON e.DepartmentId = d.Id 
+                    WHERE d.Id = @id
+                    
+                    ";
+                    cmd.Parameters.AddWithValue("@id", id);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (department == null)
+                        {
+                            department = new Department()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
+                            };
+                        }
+                            department.Employees.Add(new Employee()
+                            {
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            });
+                        
+                    }
+                }
+            }
+           return View(department);
         }
 
         // GET: Departments/Create
