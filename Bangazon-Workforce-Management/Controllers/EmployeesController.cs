@@ -38,7 +38,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor
+                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSuperVisor
                                         FROM Employee e
                                         LEFT JOIN Department d ON d.Id = e.DepartmentId;";
 
@@ -51,7 +51,7 @@ namespace Bangazon_Workforce_Management.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
+                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSuperVisor")),
                             departmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
                         });
                     }
@@ -66,19 +66,20 @@ namespace Bangazon_Workforce_Management.Controllers
         public ActionResult Details(int id)
         {
             Employee employee = null;
-            var computer = new List<Computer>();
-            var department = new List<Department>();
+            var Computer = new List<Computer>();
+            var Department = new List<Department>();
             var trainingProgram = new List<TrainingProgram>();
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor, et.Id AS                               TrainingProgramId, ce.ComputerId FROM Employee e
-                                        LEFT JOIN Department d ON d.Id = e.DepartmentId
-                                        LEFT JOIN ComputerEmployee ce ON ce.ComputerId = e.Id
-                                        LEFT JOIN EmployeeTraining et ON et.TrainingProgramId = e.Id
-                                        WHERE e.Id = @id";
+                    cmd.CommandText = @"SELECT e.FirstName, e.LastName, d.Name, c.Make, c.Manufacturer, tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees, d.Budget
+                        FROM Department d 
+                        LEFT JOIN Employee e ON d.Id = e.DepartmentId
+                        LEFT JOIN Computer c ON e.Id = c.Id
+                        LEFT JOIN TrainingProgram tp ON c.Id = tp.Id
+                        WHERE e.Id = @id";
 
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -87,12 +88,9 @@ namespace Bangazon_Workforce_Management.Controllers
                     {
                         employee = new Employee()
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            //Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
-                            //ComputerId = reader.GetInt32(reader.GetOrdinal("ComputerId")),
-                            //TrainingProgramId = reader.GetInt32(reader.GetOrdinal("TrainingProgramId"))
                         };
 
                         employee.Computer = new Computer();
@@ -100,7 +98,7 @@ namespace Bangazon_Workforce_Management.Controllers
                         {
                             employee.Computer.Make = reader.GetString(reader.GetOrdinal("Make"));
                             employee.Computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
-                            employee.Computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
+                            //employee.Computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
                         };
 
                         employee.department = new Department()
@@ -109,15 +107,15 @@ namespace Bangazon_Workforce_Management.Controllers
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
                         };
 
-                        employee.TrainingPrograms = new TrainingProgram();
-                        if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
-                        {
-                            trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
-                            trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
-                            trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
-                            trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
-                        }
-                        employee.TrainingPrograms.Add(trainingProgram);
+                        //employee.trainingProgram = new TrainingProgram();
+                        //if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
+                        //{
+                        //    trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
+                        //    trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
+                        //    trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
+                        //    trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
+                        //}
+                        //employee.TrainingPrograms.Add(trainingProgram);
                     };
                 };
             }
