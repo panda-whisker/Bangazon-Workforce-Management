@@ -74,7 +74,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.FirstName, e.LastName, d.Name, c.Make, c.Manufacturer, tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees, d.Budget
+                    cmd.CommandText = @"SELECT e.Id AS 'Employee Id', e.FirstName, e.LastName, d.Id AS 'Department Id', d.Name, c.Id AS 'Computer Id', c.Make, c.Manufacturer, tp.Id AS 'Training Program Id', tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees, d.Budget
                         FROM Department d 
                         LEFT JOIN Employee e ON d.Id = e.DepartmentId
                         LEFT JOIN Computer c ON e.Id = c.Id
@@ -88,14 +88,15 @@ namespace Bangazon_Workforce_Management.Controllers
                     {
                         employee = new Employee()
                         {
-                            //Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("Employee Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName"))
                         };
 
                         employee.Computer = new Computer();
                         if (!reader.IsDBNull(reader.GetOrdinal("Make")))
                         {
+                            employee.Computer.Id = reader.GetInt32(reader.GetOrdinal("Computer Id"));
                             employee.Computer.Make = reader.GetString(reader.GetOrdinal("Make"));
                             employee.Computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
                             //employee.Computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
@@ -103,6 +104,7 @@ namespace Bangazon_Workforce_Management.Controllers
 
                         employee.department = new Department()
                         {
+                            Id = reader.GetInt32(reader.GetOrdinal("Department Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
                         };
