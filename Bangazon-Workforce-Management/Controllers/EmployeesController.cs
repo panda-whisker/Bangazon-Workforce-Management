@@ -32,13 +32,15 @@ namespace Bangazon_Workforce_Management.Controllers
         public ActionResult Index()
         {
             var employees = new List<Employee>();
+            var departments = new List<Department>();
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, FirstName, LastName, departmentId, IsSupervisor
-                                        FROM Employee";
+                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor
+                                        FROM Employee e
+                                        LEFT JOIN Department d ON d.Id = e.DepartmentId;";
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -49,8 +51,8 @@ namespace Bangazon_Workforce_Management.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            //department = reader.GetString(reader.GetOrdinal("Department")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
+                            departmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
                         });
                     }
 
@@ -64,6 +66,9 @@ namespace Bangazon_Workforce_Management.Controllers
         public ActionResult Details(int id)
         {
             Employee employee = null;
+            var computer = new List<Computer>();
+            var department = new List<Department>();
+            var trainingProgram = new List<TrainingProgram>();
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
@@ -84,18 +89,18 @@ namespace Bangazon_Workforce_Management.Controllers
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName"))
-                            //isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
                             //ComputerId = reader.GetInt32(reader.GetOrdinal("ComputerId")),
                             //TrainingProgramId = reader.GetInt32(reader.GetOrdinal("TrainingProgramId"))
                         };
 
-                        employee.computer = new Computer();
-                        if (!reader.IsDBNull(reader.GetOrdinal("ComputerMake")))
+                        employee.Computer = new Computer();
+                        if (!reader.IsDBNull(reader.GetOrdinal("Make")))
                         {
-                            employee.computer.Make = reader.GetString(reader.GetOrdinal("Make"));
-                            employee.computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
-                            employee.computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
+                            employee.Computer.Make = reader.GetString(reader.GetOrdinal("Make"));
+                            employee.Computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
+                            employee.Computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
                         };
 
                         employee.department = new Department()
@@ -104,15 +109,15 @@ namespace Bangazon_Workforce_Management.Controllers
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
                         };
 
-                        var trainingProgram = new TrainingProgram();
-                        if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
-                        {
-                            trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
-                            trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
-                            trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
-                            trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
-                        }
-                        employee.trainingPrograms.Add(trainingProgram);
+                        //employee.TrainingPrograms = new TrainingProgram();
+                        //if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
+                        //{
+                        //    trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
+                        //    trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
+                        //    trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
+                        //    trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
+                        //}
+                        //employee.TrainingPrograms.Add(trainingProgram);
                     };
                 };
             }
