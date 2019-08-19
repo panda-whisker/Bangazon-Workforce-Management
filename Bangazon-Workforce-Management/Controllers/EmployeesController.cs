@@ -49,7 +49,7 @@ namespace Bangazon_Workforce_Management.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            DepartmentId = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
+                            //department = reader.GetString(reader.GetOrdinal("Department")),
                             isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
                         });
                     }
@@ -67,7 +67,7 @@ namespace Bangazon_Workforce_Management.Controllers
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
-                using(SqlCommand cmd = conn.CreateCommand())
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor, et.Id AS                               TrainingProgramId, ce.ComputerId FROM Employee e
                                         LEFT JOIN Department d ON d.Id = e.DepartmentId
@@ -80,148 +80,172 @@ namespace Bangazon_Workforce_Management.Controllers
 
                     while (reader.Read())
                     {
-                            employee = new Employee()
-                            {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                                isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
-                                ComputerId = reader.GetInt32(reader.GetOrdinal("ComputerId")),
-                                TrainingProgramId = reader.GetInt32(reader.GetOrdinal("TrainingProgramId"))
-                            };
-                    }
-                }
+                        employee = new Employee()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            //isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
+                            //ComputerId = reader.GetInt32(reader.GetOrdinal("ComputerId")),
+                            //TrainingProgramId = reader.GetInt32(reader.GetOrdinal("TrainingProgramId"))
+                        };
+
+                        employee.computer = new Computer();
+                        if (!reader.IsDBNull(reader.GetOrdinal("ComputerMake")))
+                        {
+                            employee.computer.Make = reader.GetString(reader.GetOrdinal("Make"));
+                            employee.computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
+                            employee.computer.PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate"));
+                        };
+
+                        employee.department = new Department()
+                        {
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
+                        };
+
+                        var trainingProgram = new TrainingProgram();
+                        if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
+                        {
+                            trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
+                            trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
+                            trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
+                            trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
+                        }
+                        employee.trainingPrograms.Add(trainingProgram);
+                    };
+                };
             }
             return View(employee);
-        }
+    }
 
-        // GET: Employees/Create
-        public ActionResult Create()
-        {
-            var viewModel = new EmployeeCreateViewModel();
-            var departments = GetAllDepartments();
-            var selectItems = departments
-                .Select(department => new SelectListItem
-                {
-                    Text = department.Name,
-                    Value = department.Id.ToString()
-                })
-                .ToList();
-
-                selectItems.Insert(0, new SelectListItem
-                {
-                Text = "Choose department...",
-                Value = "0"
-                });
-
-            viewModel.Departments = selectItems;
-            return View(viewModel);
-        }
-
-        // POST: Employees/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(Employee employee)
-        {
-            try
+    // GET: Employees/Create
+    public ActionResult Create()
+    {
+        var viewModel = new EmployeeCreateViewModel();
+        var departments = GetAllDepartments();
+        var selectItems = departments
+            .Select(department => new SelectListItem
             {
-                using (SqlConnection conn = Connection)
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = @"
-                            INSERT INTO Employee (FirstName, LastName, IsSupervisor, DepartmentId)
-                            VALUES (@firstName, @lastName, @IsSupervisor, @departmentId)
-                            ";
+                Text = department.Name,
+                Value = department.Id.ToString()
+            })
+            .ToList();
 
-                        cmd.Parameters.AddWithValue("@firstName", employee.FirstName);
-                        cmd.Parameters.AddWithValue("@lastName", employee.LastName);
-                        cmd.Parameters.AddWithValue("@IsSuperVisor", employee.isSupervisor);
-                        cmd.Parameters.AddWithValue("@departmentId", employee.DepartmentId);
-
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Employees/Edit/5
-        public ActionResult Edit(int id)
+        selectItems.Insert(0, new SelectListItem
         {
-            return View();
-        }
+            Text = "Choose department...",
+            Value = "0"
+        });
 
-        // POST: Employees/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
+        viewModel.Departments = selectItems;
+        return View(viewModel);
+    }
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Employees/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Employees/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        private List<Department> GetAllDepartments()
+    // POST: Employees/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Create(Employee employee)
+    {
+        try
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT Id, Name FROM Department";
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = @"
+                            INSERT INTO Employee (FirstName, LastName, IsSupervisor, DepartmentId)
+                            VALUES (@firstName, @lastName, @IsSupervisor, @departmentId)
+                            ";
 
-                    List<Department> departments = new List<Department>();
-                    while (reader.Read())
-                    {
-                        departments.Add(new Department
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("Name"))
-                        });
-                    }
+                    cmd.Parameters.AddWithValue("@firstName", employee.FirstName);
+                    cmd.Parameters.AddWithValue("@lastName", employee.LastName);
+                    cmd.Parameters.AddWithValue("@IsSuperVisor", employee.isSupervisor);
+                    //cmd.Parameters.AddWithValue("@departmentId", employee.D);
 
-                    reader.Close();
-                    return departments;
+                    cmd.ExecuteNonQuery();
                 }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch
+        {
+            return View();
+        }
+    }
+
+    // GET: Employees/Edit/5
+    public ActionResult Edit(int id)
+    {
+        return View();
+    }
+
+    // POST: Employees/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Edit(int id, IFormCollection collection)
+    {
+        try
+        {
+            // TODO: Add update logic here
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch
+        {
+            return View();
+        }
+    }
+
+    // GET: Employees/Delete/5
+    public ActionResult Delete(int id)
+    {
+        return View();
+    }
+
+    // POST: Employees/Delete/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Delete(int id, IFormCollection collection)
+    {
+        try
+        {
+            // TODO: Add delete logic here
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch
+        {
+            return View();
+        }
+    }
+
+    private List<Department> GetAllDepartments()
+    {
+        using (SqlConnection conn = Connection)
+        {
+            conn.Open();
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Id, Name FROM Department";
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                List<Department> departments = new List<Department>();
+                while (reader.Read())
+                {
+                    departments.Add(new Department
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        Name = reader.GetString(reader.GetOrdinal("Name"))
+                    });
+                }
+
+                reader.Close();
+                return departments;
             }
         }
     }
+}
 }
