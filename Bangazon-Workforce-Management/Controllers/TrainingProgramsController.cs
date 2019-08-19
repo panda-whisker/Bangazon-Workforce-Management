@@ -227,7 +227,8 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: TrainingPrograms/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            TrainingProgram trainingProgram = GetSingleTrainingProgram(id);
+            return View(trainingProgram);
         }
 
         // POST: TrainingPrograms/Delete/5
@@ -244,6 +245,39 @@ namespace Bangazon_Workforce_Management.Controllers
             catch
             {
                 return View();
+            }
+        }
+
+        private TrainingProgram GetSingleTrainingProgram(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                TrainingProgram trainingProgram = null;
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, Name, StartDate, EndDate, MaxAttendees
+                        FROM TrainingProgram
+                        WHERE Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        trainingProgram = new TrainingProgram()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                            EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"))
+                        };
+                    }
+                    reader.Close();
+                }
+                return trainingProgram;
             }
         }
     }
