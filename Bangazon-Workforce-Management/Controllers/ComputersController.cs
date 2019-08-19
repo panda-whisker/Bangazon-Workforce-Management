@@ -63,6 +63,11 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Computers/Details/5
         public ActionResult Details(int id)
         {
+            return GetComputerById(id);
+        }
+
+        private ActionResult GetComputerById(int id)
+        {
             Computer computer = null;
             using (SqlConnection conn = Connection)
             {
