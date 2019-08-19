@@ -147,17 +147,26 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Computers/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(GetComputerById(id));
         }
 
         // POST: Computers/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteConfirm(int id)
         {
             try
             {
-                // TODO: Add delete logic here
+                using(SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText@"
+                                        
+                                        "
+                    }
+                }
 
                 return RedirectToAction(nameof(Index));
             }
