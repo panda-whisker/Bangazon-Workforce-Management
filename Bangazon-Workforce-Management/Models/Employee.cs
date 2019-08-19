@@ -19,5 +19,15 @@ namespace Bangazon_Workforce_Management.Models
         public int DepartmentId { get; set; }
 
         public bool isSupervisor { get; set; }
+
+        public Department Department { get; set; }
+
+        public string FullName
+        {
+            get
+            {
+                return $"{FirstName} {LastName}";
+            }
+        }
     }
 }
