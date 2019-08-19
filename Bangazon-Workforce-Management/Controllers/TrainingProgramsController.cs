@@ -69,7 +69,7 @@ namespace Bangazon_Workforce_Management.Controllers
                     reader.Close();
                 }
             }
-
+            ViewData["past"] = past;
             return View(trainingPrograms);
         }
 

@@ -33,29 +33,46 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MaxAttendees)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaxAttendees)
+            </td>
+            <td>
+                @if (ViewBag.past == false)
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                    <span>|</span>
+                }
+                @Html.ActionLink("Details", "Details", new { id = item.Id })
+                @if (ViewBag.past == false)
+                {
+                    <span>|</span>
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
+                }
+            </td>
+    
             </tr>
         }
     </tbody>
 </table>
-@Html.ActionLink("View Past Programs", "Index", new { past = true })
+@if (ViewBag.past == false)
+{
+    @Html.ActionLink("View Past Programs", "Index", new { past = true })
+}
+else
+{
+    @Html.ActionLink("View Upcoming Programs", "Index", new { past = false })
+}
+
