@@ -11,13 +11,17 @@ namespace Bangazon_Workforce_Management.Models
         public int Id { get; set; }
 
         [Required]
+        [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
         [Required]
+        [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        [Display(Name = "Supervisor")]
         public bool isSupervisor { get; set; }
 
+        [Display(Name = "Department Id")]
         public int departmentId { get; set; }
 
         public Computer Computer { get; set; }
@@ -26,6 +30,7 @@ namespace Bangazon_Workforce_Management.Models
 
         public List<TrainingProgram> trainingPrograms { get; set; } = new List<TrainingProgram>();
 
+        [Display(Name = "Full Name")]
         public string FullName
         {
             get

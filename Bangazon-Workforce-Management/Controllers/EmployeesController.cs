@@ -71,7 +71,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.Id AS 'Employee Id', e.FirstName, e.LastName, d.Id AS 'Department Id', d.Name, c.Id AS 'Computer Id', c.Make, c.Manufacturer, tp.Id AS 'Training Program Id', tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees
+                    cmd.CommandText = @"SELECT e.Id AS 'Employee Id', e.FirstName, e.LastName, d.Id AS 'Department Id', d.Name, c.Id AS 'Computer Id', c.Make AS 'Computer Make', c.Manufacturer, tp.Id AS 'Training Program Id', tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees
                         FROM Department d 
                         LEFT JOIN Employee e ON d.Id = e.DepartmentId
                         LEFT JOIN Computer c ON e.Id = c.Id
@@ -96,7 +96,7 @@ namespace Bangazon_Workforce_Management.Controllers
                             if (!reader.IsDBNull(reader.GetOrdinal("Computer Id")))
                             {
                                 computer.Id = reader.GetInt32(reader.GetOrdinal("Computer Id"));
-                                computer.Make = reader.GetString(reader.GetOrdinal("Make"));
+                                computer.Make = reader.GetString(reader.GetOrdinal("Computer Make"));
                                 computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
                                 employee.Computer = computer;
 
@@ -188,19 +188,31 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Employees/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            // YOU HAVE TO WRITE ALL THIS LOGIC STILL!!
+            Employee employee = GetOneEmployee();
+            List<Department> departments = GetAllDepartments();
+            List<Computer> computers = GetAllComputers();
+            var viewModel = new EmployeeEditViewModel(employee, department)
+            return View(viewModel);
         }
 
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, InstructorEditViewModel model)
         {
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        // Finish SQL shit here. 
+                    }
+                }
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
             }
             catch
             {
