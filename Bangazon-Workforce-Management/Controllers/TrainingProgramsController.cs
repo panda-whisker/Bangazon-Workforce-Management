@@ -238,7 +238,20 @@ namespace Bangazon_Workforce_Management.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"DELETE FROM EmployeeTraining
+                                                WHERE TrainingProgramId = @id;
+                                            DELETE FROM TrainingProgram
+                                                WHERE Id = @id";
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
 
                 return RedirectToAction(nameof(Index));
             }
