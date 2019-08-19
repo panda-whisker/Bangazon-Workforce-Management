@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Bangazon_Workforce_Management.Models;
+using Bangazon_Workforce_Management.Models.ViewModels;
 
 namespace Bangazon_Workforce_Management.Controllers
 {
@@ -67,18 +68,39 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Departments/Create
         public ActionResult Create()
         {
+            
             return View();
         }
+
 
         // POST: Departments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Department department)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
 
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                    INSERT INTO Department(
+                        Name,
+                        Budget
+                        )Values(
+                        @name,
+                        @budget
+                        )
+                    ";
+
+                        cmd.Parameters.AddWithValue("@name", department.Name);
+                        cmd.Parameters.AddWithValue("@budget", department.Budget);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -158,5 +180,6 @@ namespace Bangazon_Workforce_Management.Controllers
                 }
             }
         }
+
     }
 }
