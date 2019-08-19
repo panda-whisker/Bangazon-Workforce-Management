@@ -109,15 +109,15 @@ namespace Bangazon_Workforce_Management.Controllers
                             Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
                         };
 
-                        //employee.TrainingPrograms = new TrainingProgram();
-                        //if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
-                        //{
-                        //    trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
-                        //    trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
-                        //    trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
-                        //    trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
-                        //}
-                        //employee.TrainingPrograms.Add(trainingProgram);
+                        employee.TrainingPrograms = new TrainingProgram();
+                        if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
+                        {
+                            trainingProgram.Name = reader.GetString(reader.GetOrdinal("TrainingProgram"));
+                            trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
+                            trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
+                            trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
+                        }
+                        employee.TrainingPrograms.Add(trainingProgram);
                     };
                 };
             }
