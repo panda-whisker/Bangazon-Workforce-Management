@@ -1,0 +1,66 @@
+﻿@model Bangazon_Workforce_Management.Models.Employee
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Employee</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.department.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.department.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Computer.Make)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Computer.Make)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FullName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FullName)
+        </dd>
+        @foreach (var item in Model.trainingPrograms)
+        {
+            if (item.Name != null)
+            {
+                <dt>
+                    @Html.DisplayNameFor(model => item.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => item.Name)
+                </dd>
+            }
+        }
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-action="Index">Back to List</a>
+</div>
