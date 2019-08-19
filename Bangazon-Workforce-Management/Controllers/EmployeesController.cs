@@ -32,13 +32,15 @@ namespace Bangazon_Workforce_Management.Controllers
         public ActionResult Index()
         {
             var employees = new List<Employee>();
+            var departments = new List<Department>();
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, FirstName, LastName, departmentId, IsSupervisor
-                                        FROM Employee";
+                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, e.IsSuperVisor
+                                        FROM Employee e
+                                        LEFT JOIN Department d ON d.Id = e.DepartmentId;";
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -49,8 +51,8 @@ namespace Bangazon_Workforce_Management.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            DepartmentId = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSuperVisor")),
+                            departmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
                         });
                     }
 
@@ -67,26 +69,60 @@ namespace Bangazon_Workforce_Management.Controllers
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
-                using(SqlCommand cmd = conn.CreateCommand())
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.FirstName, e.LastName, e.DepartmentId, e.IsSupervisor,
-                                        ce.ComputerId, FROM Employee e
-                                        JOIN Department d ON d.Id = e.DepartmentId
-                                        JOIN ComputerEmployee ce ON ce.ComputerId = e.Id";
+                    cmd.CommandText = @"SELECT e.Id AS 'Employee Id', e.FirstName, e.LastName, d.Id AS 'Department Id', d.Name, c.Id AS 'Computer Id', c.Make, c.Manufacturer, tp.Id AS 'Training Program Id', tp.[Name] AS 'Training Program', tp.StartDate, tp.EndDate, tp.MaxAttendees
+                        FROM Department d 
+                        LEFT JOIN Employee e ON d.Id = e.DepartmentId
+                        LEFT JOIN Computer c ON e.Id = c.Id
+                        LEFT JOIN TrainingProgram tp ON c.Id = tp.Id
+                        WHERE e.Id = @id";
 
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        employee = new Employee()
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("id")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirtName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            isSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+                            employee = new Employee()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Employee Id")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            };
+
+
+                            Computer computer = new Computer();
+                            if (!reader.IsDBNull(reader.GetOrdinal("Computer Id")))
+                            {
+                                computer.Id = reader.GetInt32(reader.GetOrdinal("Computer Id"));
+                                computer.Make = reader.GetString(reader.GetOrdinal("Make"));
+                                computer.Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"));
+                                employee.Computer = computer;
+
+                            }
+                            else
+                            {
+                                employee.Computer = null;
+                            };
+
+                            employee.department = new Department()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Department Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            };
+
+                            var trainingProgram = new TrainingProgram();
+                            if (!reader.IsDBNull(reader.GetOrdinal("StartDate")))
+                            {
+                                trainingProgram.Name = reader.GetString(reader.GetOrdinal("Training Program"));
+                                trainingProgram.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
+                                trainingProgram.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
+                                trainingProgram.MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"));
+                            }
+                            employee.trainingPrograms.Add(trainingProgram);
                         };
-                    }
+                    };
                 }
             }
             return View(employee);
@@ -105,11 +141,11 @@ namespace Bangazon_Workforce_Management.Controllers
                 })
                 .ToList();
 
-                selectItems.Insert(0, new SelectListItem
-                {
+            selectItems.Insert(0, new SelectListItem
+            {
                 Text = "Choose department...",
                 Value = "0"
-                });
+            });
 
             viewModel.Departments = selectItems;
             return View(viewModel);
@@ -135,7 +171,7 @@ namespace Bangazon_Workforce_Management.Controllers
                         cmd.Parameters.AddWithValue("@firstName", employee.FirstName);
                         cmd.Parameters.AddWithValue("@lastName", employee.LastName);
                         cmd.Parameters.AddWithValue("@IsSuperVisor", employee.isSupervisor);
-                        cmd.Parameters.AddWithValue("@departmentId", employee.DepartmentId);
+                        cmd.Parameters.AddWithValue("@departmentId", employee.departmentId);
 
                         cmd.ExecuteNonQuery();
                     }
