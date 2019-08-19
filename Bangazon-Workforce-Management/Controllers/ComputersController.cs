@@ -1,18 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Bangazon_Workforce_Management.Models;
+using Bangazon_Workforce_Management.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 
 namespace Bangazon_Workforce_Management.Controllers
 {
     public class ComputersController : Controller
     {
+        private readonly IConfiguration _config;
+
+        public ComputersController(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        public SqlConnection Connection
+        {
+            get
+            {
+                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            }
+        }
         // GET: Computers
         public ActionResult Index()
         {
-            return View();
+            var computers = new List<Computer>();
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT Id, PurchaseDate, DecomissionDate, Make, Manufacturer
+                                        FROM Computer";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Computer computer = new Computer
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
+                            Make = reader.GetString(reader.GetOrdinal("Make")),
+                            Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"))
+                        };
+                        computers.Add(computer);
+                    }
+
+                    reader.Close();
+                }
+            }
+            return View(computers);
         }
 
         // GET: Computers/Details/5
