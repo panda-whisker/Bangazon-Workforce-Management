@@ -24,7 +24,7 @@ namespace Bangazon_Workforce_Management.Models
 
         public Department department { get; set; }
 
-        public List<TrainingProgram> trainingProgram { get; set; } = new List<TrainingProgram>();
+        public List<TrainingProgram> trainingPrograms { get; set; } = new List<TrainingProgram>();
 
         public string FullName
         {

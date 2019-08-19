@@ -29,17 +29,35 @@
             @Html.DisplayFor(model => model.LastName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.isSupervisor)
+            @Html.DisplayNameFor(model => model.department.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.isSupervisor)
+            @Html.DisplayFor(model => model.department.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.departmentId)
+            @Html.DisplayNameFor(model => model.Computer.Make)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.departmentId)
+            @Html.DisplayFor(model => model.Computer.Make)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FullName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FullName)
+        </dd>
+        @foreach (var item in Model.trainingPrograms)
+        {
+            if (item.Name != null)
+            {
+                <dt>
+                    @Html.DisplayNameFor(model => item.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => item.Name)
+                </dd>
+            }
+        }
     </dl>
 </div>
 <div>
