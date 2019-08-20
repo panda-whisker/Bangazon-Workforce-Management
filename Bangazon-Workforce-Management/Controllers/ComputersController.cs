@@ -103,16 +103,35 @@ namespace Bangazon_Workforce_Management.Controllers
         {
             return View();
         }
-
         // POST: Computers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Computer computer)
         {
             try
             {
-                // TODO: Add insert logic here
-
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                                         INSERT INTO Computer (
+                                           PurchaseDate,
+                                           Make,
+                                           Manufacturer
+                                       )VALUES (
+                                           @PurchaseDate,
+                                           @Make,
+                                           @Manufacturer
+                                       )
+                                   ";
+                        cmd.Parameters.AddWithValue("@PurchaseDate", computer.PurchaseDate);
+                        cmd.Parameters.AddWithValue("@Make", computer.Make);
+                        cmd.Parameters.AddWithValue("@Manufacturer", computer.Manufacturer);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -120,7 +139,6 @@ namespace Bangazon_Workforce_Management.Controllers
                 return View();
             }
         }
-
         // GET: Computers/Edit/5
         public ActionResult Edit(int id)
         {
@@ -150,30 +168,12 @@ namespace Bangazon_Workforce_Management.Controllers
             return View(GetComputerById(id));
         }
 
-        // POST: Computers/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirm(int id)
-        {
-            try
-            {
-                using(SqlConnection conn = Connection)
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText@"
-                                        
-                                        "
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //// POST: Computers/Delete/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Delete(int id)
+        //{
+        //    return View(GetComputerById(id));
+        //}
     }
 }
