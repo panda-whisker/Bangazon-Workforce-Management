@@ -28,7 +28,7 @@ namespace Bangazon_Workforce_Management.Controllers
         }
 
         // GET: TrainingPrograms
-        public ActionResult Index()
+        public ActionResult Index(Boolean past)
         {
             var trainingPrograms = new List<TrainingProgram>();
             using (SqlConnection conn = Connection)
@@ -36,11 +36,22 @@ namespace Bangazon_Workforce_Management.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
+                    if (past == false)
+                    {
+                        cmd.CommandText = @"
                         SELECT Id, Name, StartDate, EndDate, MaxAttendees
                         FROM TrainingProgram
                         WHERE StartDate > GETDATE();
                     ";
+                    }
+                    if (past == true)
+                    {
+                        cmd.CommandText = @"
+                        SELECT Id, Name, StartDate, EndDate, MaxAttendees
+                        FROM TrainingProgram
+                        WHERE StartDate < GETDATE();
+                    ";
+                    }
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -58,12 +69,12 @@ namespace Bangazon_Workforce_Management.Controllers
                     reader.Close();
                 }
             }
-
+            ViewData["past"] = past;
             return View(trainingPrograms);
         }
 
         // GET: TrainingPrograms/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int id, Boolean past)
         {
             TrainingProgram trainingProgram = null;
             using (SqlConnection conn = Connection)
@@ -109,6 +120,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 }
             }
 
+            ViewData["past"] = past;
             return View(trainingProgram);
         }
 
