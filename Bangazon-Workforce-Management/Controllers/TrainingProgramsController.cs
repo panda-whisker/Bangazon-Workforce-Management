@@ -74,7 +74,7 @@ namespace Bangazon_Workforce_Management.Controllers
         }
 
         // GET: TrainingPrograms/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int id, Boolean past)
         {
             TrainingProgram trainingProgram = null;
             using (SqlConnection conn = Connection)
@@ -120,6 +120,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 }
             }
 
+            ViewData["past"] = past;
             return View(trainingProgram);
         }
 

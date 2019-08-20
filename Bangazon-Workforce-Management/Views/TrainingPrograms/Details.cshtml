@@ -43,7 +43,7 @@
     </dl>
     @if (Model.attendingEmployees.Count > 0)
     {
-        <h4>Attending Employees:</h4>
+        <h4>Attendees:</h4>
         @foreach (var item in Model.attendingEmployees)
         {
 
@@ -52,10 +52,21 @@
     }
     else
     {
-        <p>There are currently no employees attending this program</p>
+        @if (ViewBag.past == false)
+        {
+            <p>There are currently no attendees for this program</p>
+        }
+        @if (ViewBag.past == true)
+        {
+            <p>There were no attendees for this program</p>
+        }
     }
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @if (ViewBag.past == false)
+    {
+        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) 
+        <span>|</span>
+    }
     <a asp-action="Index">Back to List</a>
 </div>
