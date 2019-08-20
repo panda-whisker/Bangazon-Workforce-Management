@@ -63,10 +63,11 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Computers/Details/5
         public ActionResult Details(int id)
         {
-            return GetComputerById(id);
+            Computer computer = GetComputerById(id);
+            return View(computer);
         }
 
-        private ActionResult GetComputerById(int id)
+        private Computer GetComputerById(int id)
         {
             Computer computer = null;
             using (SqlConnection conn = Connection)
@@ -95,7 +96,7 @@ namespace Bangazon_Workforce_Management.Controllers
                     reader.Close();
                 }
             }
-            return View(computer);
+            return computer;
         }
 
         // GET: Computers/Create
@@ -165,13 +166,15 @@ namespace Bangazon_Workforce_Management.Controllers
         // GET: Computers/Delete/5
         public ActionResult Delete(int id)
         {
-            return View(GetComputerById(id));
+            Computer computer = GetComputerById(id);
+            return View(computer);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteComputer(int id)
+        public ActionResult Delete(int id, IFormCollection collection)
         {
+      
             try
             {
                 using (SqlConnection conn = Connection)
@@ -184,15 +187,20 @@ namespace Bangazon_Workforce_Management.Controllers
                                             WHERE Id=@ID AND Id NOT IN (SELECT ce.ComputerId
                                             FROM ComputerEmployee ce )
                                             ";
-                        cmd.Parameters.Add(new SqlParameter("@ID", Id));
+                        cmd.Parameters.Add(new SqlParameter("@ID", id));
                         int rowsAffected = cmd.ExecuteNonQuery();
-                        if(rowsAffected > 0)
+                        if (rowsAffected > 0)
                         {
-                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                            return RedirectToAction(nameof(Index));
                         }
-                        throw new Exception("Can't delete that computer");
+                        else
+                        {
+                            throw new Exception("Can't delete that computer");
+                        }
+
                     }
                 }
+
             }
             catch (Exception)
             {
