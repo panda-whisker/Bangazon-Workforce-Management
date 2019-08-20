@@ -168,12 +168,58 @@ namespace Bangazon_Workforce_Management.Controllers
             return View(GetComputerById(id));
         }
 
-        //// POST: Computers/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id)
-        //{
-        //    return View(GetComputerById(id));
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteComputer(int id)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                                         DELETE FROM Computer
+                                            WHERE Id=@ID AND Id NOT IN (SELECT ce.ComputerId
+                                            FROM ComputerEmployee ce )
+                                            ";
+                        cmd.Parameters.Add(new SqlParameter("@ID", Id));
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if(rowsAffected > 0)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                        }
+                        throw new Exception("Can't delete that computer");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (!ComputerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+        private bool ComputerExists(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    // More string interpolation
+                    cmd.CommandText = "SELECT Id FROM Customer WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    return reader.Read();
+                }
+            }
+        }
     }
 }
