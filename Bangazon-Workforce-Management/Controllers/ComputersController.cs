@@ -61,9 +61,10 @@ namespace Bangazon_Workforce_Management.Controllers
         }
 
         // GET: Computers/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int id, Boolean isRedirect)
         {
             Computer computer = GetComputerById(id);
+            ViewData["isRedirect"] = isRedirect;
             return View(computer);
         }
 
@@ -164,9 +165,10 @@ namespace Bangazon_Workforce_Management.Controllers
         }
 
         // GET: Computers/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int id, Boolean isRedirect)
         {
             Computer computer = GetComputerById(id);
+            ViewData["isRedirect"] = isRedirect;
             return View(computer);
         }
 
@@ -210,7 +212,7 @@ namespace Bangazon_Workforce_Management.Controllers
                 }
                 else
                 {
-                    throw;
+                    return RedirectToAction(nameof(Details), new { id = id, isRedirect = true });
                 }
             }
         }
