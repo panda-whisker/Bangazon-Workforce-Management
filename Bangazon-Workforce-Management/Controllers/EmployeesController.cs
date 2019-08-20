@@ -189,17 +189,17 @@ namespace Bangazon_Workforce_Management.Controllers
         public ActionResult Edit(int id)
         {
             // YOU HAVE TO WRITE ALL THIS LOGIC STILL!!
-            Employee employee = GetOneEmployee();
+            Employee employee = GetSingleEmployee(id);
             List<Department> departments = GetAllDepartments();
             List<Computer> computers = GetAllComputers();
-            var viewModel = new EmployeeEditViewModel(employee, department)
+            var viewModel = new EmployeeEditViewModel(employee, departments, computers);
             return View(viewModel);
         }
 
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, InstructorEditViewModel model)
+        public ActionResult Edit(int id, EmployeeEditViewModel model)
         {
             try
             {
@@ -208,7 +208,17 @@ namespace Bangazon_Workforce_Management.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        // Finish SQL shit here. 
+                        cmd.CommandText = @"UPDATE Employee 
+                                            SET LastName = @lastName,
+                                                DepartmentId = @departmentId,
+                                                ComputerId = @computerId
+                                            WHERE Id = @id";
+                        cmd.Parameters.AddWithValue("@lastName", model.employee.LastName);
+                        cmd.Parameters.AddWithValue("@departmentId", model.employee.departmentId);
+                        cmd.Parameters.AddWithValue("@computerId", model.employee.Computer);
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        cmd.ExecuteNonQuery();
                     }
                 }
 
@@ -243,6 +253,36 @@ namespace Bangazon_Workforce_Management.Controllers
             }
         }
 
+        private Employee GetSingleEmployee(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                Employee employee = null;
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                        SELECT Id, FirstName, LastName
+                                        FROM Employee
+                                        WHERE Id = @id";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        employee = new Employee()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                        };
+                    }
+                }
+                return employee;
+            }
+        }
+
         private List<Department> GetAllDepartments()
         {
             using (SqlConnection conn = Connection)
@@ -265,6 +305,33 @@ namespace Bangazon_Workforce_Management.Controllers
 
                     reader.Close();
                     return departments;
+                }
+            }
+        }
+
+        private List<Computer> GetAllComputers()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, Make, Manufacturer FROM Computer";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Computer> computers = new List<Computer>();
+                    while (reader.Read())
+                    {
+                        computers.Add(new Computer
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Make = reader.GetString(reader.GetOrdinal("Make")),
+                            Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"))
+                        });
+                    }
+
+                    reader.Close();
+                    return computers;
                 }
             }
         }
