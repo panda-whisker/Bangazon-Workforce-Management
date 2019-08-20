@@ -208,42 +208,44 @@ namespace Bangazon_Workforce_Management.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"UPDATE Employee 
+                        if (model.Computers != null)
+                        {
+                            cmd.CommandText = @"UPDATE Employee 
                                             SET LastName = @lastName,
-                                                DepartmentId = @departmentId,
-                                                ComputerId = @computerId
-                                            WHERE Id = @id";
-                        cmd.Parameters.AddWithValue("@lastName", model.employee.LastName);
-                        cmd.Parameters.AddWithValue("@departmentId", model.employee.departmentId);
-                        cmd.Parameters.AddWithValue("@computerId", model.employee.Computer);
-                        cmd.Parameters.AddWithValue("@id", id);
+                                                DepartmentId = @departmentId
+                                            WHERE Id = @id;
+
+                                            UPDATE ComputerEmployee
+                                            SET EmployeeId = @id,
+                                                ComputerId = @computerId,
+                                                AssignDate = GETDATE(),
+                                                UnassignDate = null
+                                            WHERE EmployeeId = @id";
+
+
+                            cmd.Parameters.AddWithValue("@lastName", model.employee.LastName);
+                            cmd.Parameters.AddWithValue("@departmentId", model.employee.departmentId);
+                            cmd.Parameters.AddWithValue("@computerId", model.employee.Computer.Id);
+                            cmd.Parameters.AddWithValue("@id", id);
+                        }
+                        else
+                        {
+
+                            cmd.CommandText = @"
+                                            UPDATE Employee 
+                                            SET LastName = @lastName,
+                                                DepartmentId = @departmentId
+                                            WHERE Id = @id
+                                              ";
+                            cmd.Parameters.AddWithValue("@id", id);
+                            cmd.Parameters.AddWithValue("@lastName", model.employee.LastName);
+                            cmd.Parameters.AddWithValue("@departmentId", model.employee.departmentId);
+
+                        }
 
                         cmd.ExecuteNonQuery();
                     }
                 }
-
-                    return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Employees/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Employees/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
 
                 return RedirectToAction(nameof(Index));
             }
